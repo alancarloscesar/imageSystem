@@ -3,6 +3,8 @@ const cors = require("cors")
 const router = require('./routes')
 const mongoose = require("mongoose")
 
+
+
 class App {
     constructor() {
         this.server = express();
@@ -15,7 +17,7 @@ class App {
             useNewUrlParser: true,
             useUnifiedTopology: true
         }).then(() => {
-           //console.log("Conectado com sucesso!")
+            //console.log("Conectado com sucesso!")
         }).catch((error) => {
             console.log(error)
         })
@@ -27,6 +29,7 @@ class App {
     middlewares() {
         this.server.use(express.json())
         this.server.use(cors())
+
     }
 
     routes() {

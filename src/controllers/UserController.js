@@ -1,6 +1,9 @@
 const User = require('../models/User')
 const bcrypt = require('bcrypt')
 
+const jwt = require("jsonwebtoken")
+const JWTSecret = "minhaaplicacao"
+
 class UserController {
     async store(req, res) {
 
@@ -34,6 +37,57 @@ class UserController {
 
         return res.json(userCreate)
     }
+
+    async destroy(req, res) {
+        const { name } = req.params
+        await User.deleteMany({
+            name
+        })
+
+        return res.status(200).json({
+            Sucess: "Deletado..."
+        });
+    }
+
+    async jwtTokenGenerate(req, res) {
+        let { email, password } = req.body;
+
+        let user = await User.findOne({
+            email
+        })
+
+        //se não encontrar
+        if (!user) {
+            res.statusCode = 403;//o esperado pelo teste
+
+            res.json({
+                error: "Email não cadastrado."
+            })
+
+            return;
+        }
+
+        //comparando senhas
+        let pass = await bcrypt.compare(password, user.password)
+
+        if (!pass) {
+            res.statusCode = 403;//o esperado pelo teste
+            res.json({
+                error: "Password não cadastrada"
+            })
+            return;
+        }
+
+        jwt.sign({ email, name: user.name, id: user._id }, JWTSecret, { expiresIn: '30d' }, (err, token) => {
+            if (err) {
+                res.sendStatus(500);
+                console.log(err)
+            } else {
+                res.json({ token })
+            }
+        })
+    }
+
 }
 
 module.exports = new UserController();

@@ -2,6 +2,25 @@ const supertest = require("supertest")
 const app = require("../src/app")
 let request = supertest(app)
 
+let Mainuser = {//objeto user
+    name: "Alan",
+    email: "alan@alan.com",
+    password: "123123"
+}
+
+beforeAll(async () => {
+    return await request.post("/user/create").send(Mainuser)
+        .then(res => { })
+        .catch(err => console.log(err))
+})
+
+afterAll(async () => {//ao final de tudo vai deletar todos os registro com name Alan para não ficar no bd
+
+    return await request.delete(`/user/delete/${Mainuser.name}`)
+        .then(res => { })
+        .catch(err => console.log(err))
+})
+
 describe("CADASTRO DE USUARIOS", () => {
     it("Deve cadastrar um usuário com sucesso!", async () => {
 
@@ -72,6 +91,44 @@ describe("CADASTRO DE USUARIOS", () => {
 
             }).catch(err => {
                 console.log(err)
+            })
+    })
+})
+
+describe("AUTENTICAÇÃO", () => {
+
+    it("Deve retornar um token quando logar", async () => {
+        return await request.post('/auth')
+            .send({ email: Mainuser.email, password: Mainuser.password })
+            .then(res => {
+                expect(res.statusCode).toEqual(200);
+                expect(res.body.token).toBeDefined();//diferente de undefined
+            })
+            .catch(err => {
+                fail(err)
+            })
+    })
+
+
+    it("Deve impedir que um usuário não cadastrado se logue", async () => {
+        return await request.post("/auth")
+            .send({ email: "asdfasdf@asdfaf.com", password: "123456789" })
+            .then(res => {
+                expect(res.statusCode).toEqual(403)
+                expect(res.body.error).toEqual("Email não cadastrado.")
+            }).catch(err => {
+                fail(err)
+            })
+    })
+
+    it("Deve impedir que um usuário se logue com a senha incorreta", async () => {
+        return await request.post("/auth")
+            .send({ email: Mainuser.email, password: "123456789" })
+            .then(res => {
+                expect(res.statusCode).toEqual(403)
+                expect(res.body.error).toEqual("Password não cadastrada")
+            }).catch(err => {
+                fail(err)
             })
     })
 })
