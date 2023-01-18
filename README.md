@@ -11,4 +11,6 @@ Tecnologias usadas: Node Js, Express, JWT, MongoDB, Bcrypt, Nodemon, Jest, Postm
 Aqui teremos as funcionalidades e rotas detalhadas nas requisições http
 
 clonar o projeto:
-git clone 
+git clone https://github.com/alancarloscesar/imageSystem.git
+
+para as dependências e container, no terminal: docker-compose up
